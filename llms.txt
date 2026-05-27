@@ -1,0 +1,53 @@
+# fvs-code: OpenAI-Compatible Proxy Server for VS Code
+
+## Project Context
+This project was created to provide a lightweight, OpenAI-compatible proxy server that can be used with VS Code AI extensions (like Continue, Cline, Roo Code, etc.). 
+The primary goal is to avoid being locked into a single provider by running a local proxy that routes requests to various providers (Groq, OpenRouter, etc.) based on the requested model name. 
+It mirrors the architecture of `fcc-server` (from fcc-claude) by utilizing lazy-loaded modules for different providers.
+
+## Architecture & How It Works
+- **Base Server Framework**: Node.js + Express + TypeScript.
+- **Port**: `11434` (mimicking Ollama's default for easy configuration in extensions).
+- **Core Endpoint**: `POST /v1/chat/completions`.
+- **Model Routing**: 
+  - Clients send a model string formatted as `provider_name/actual_model_name`.
+  - Example: `groq/llama3-8b-8192` or `openrouter/anthropic/claude-3-opus`.
+- **Lazy Loading**: 
+  - When a request is received, the proxy extracts `provider_name`.
+  - It dynamically loads the corresponding provider file from `src/providers/${provider_name}`.
+  - Doing this keeps the memory footprint light and avoids starting providers that aren't requested.
+- **Upstream Proxying**:
+  - The proxy configures the headers with the relevant provider's API key (from `.env`).
+  - It proxies the payload upstream, re-mapping the `model` key to just the `actual_model_name`.
+  - It passes back the streaming (or non-streaming) response chunk by chunk to the VS Code extension.
+
+## Folder Structure
+.
+├── .env.example
+├── tsconfig.json
+├── package.json
+└── src
+    ├── index.ts              # Express API (Routes: /v1/chat/completions, /v1/models)
+    ├── types.ts              # Interfaces (e.g., ProxyProvider)
+    └── providers
+        ├── groq.ts           # Groq provider configuration & model fetching
+        └── openrouter.ts     # OpenRouter provider configuration
+
+## Setup & Testing
+1. **Environment Setup**: 
+   - `cp .env.example .env`
+   - Fill in keys like `GROQ_API_KEY`, `OPENROUTER_API_KEY`.
+2. **Commands**:
+   - `npm install`
+   - `npm run dev` (Runs `ts-node src/index.ts`)
+   - `npm run build` (Compiles TS -> JS to `./build`)
+3. **Usage in VS Code Extension**:
+   - Provider Type: `OpenAI Compatible`
+   - Base URL: `http://localhost:11434/v1`
+   - API Key: `dummy_key` (ignored by proxy, overridden securely from `.env`)
+   - Model Name: `groq/llama-3.1-70b-versatile`
+
+## Next Steps / Continuation
+- The foundation works and handles streaming responses.
+- Can add more providers easily by dropping a new `.ts` file into `src/providers` that conforms to the `ProxyProvider` interface.
+- Might want to refine the `/v1/models` endpoint if extensions demand strict formatting or mapping.
