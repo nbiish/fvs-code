@@ -618,3 +618,29 @@ git push local-router --delete fix/vscode-provider-aliases
 # Prune stale worktrees
 git worktree prune
 ```
+
+### Session log: 2026-05-27 (Zed / MiMo V2.5 Pro)
+
+**Remote renamed:** `origin` → `local-router` (pushes to `https://github.com/nbiish/fvs-code.git`)
+
+**What was done:**
+1. Renamed git remote from `origin` to `local-router` and pushed both branches (`main`, `fix/vscode-provider-aliases`).
+2. Reviewed all branches — only one diverges from `main`: `fix/vscode-provider-aliases` (1 commit ahead, `77d483c`).
+3. Verified `tsc` builds cleanly with zero errors (ran `npm run build` multiple times).
+4. Removed stale `build/src/` directory from disk (leftover from older tsconfig `rootDir` setting).
+5. Discovered 16 compiler output files (`.js`, `.d.ts`, `.map`) tracked in git inside `src/` — these should be gitignored and removed from tracking. Full list and fix commands are in the "Branch Merge Review" section above.
+6. Attempted to run `npm test` (integration test) — test spawns a full Express server + fake upstream and was too large/heavy to complete in this session. Needs manual verification.
+7. Created temporary `scripts/run-test.sh` and `scripts/run-test-quiet.sh` for debugging — deleted after session, not committed.
+8. Added "Branch Merge Review: 2026-05-27" section to this file with full diff summary, issues, fix commands, and merge procedure.
+9. Committed documentation update as `5d5a25e` on `fix/vscode-provider-aliases` and pushed to `local-router`.
+
+**Current commit state:**
+- `fix/vscode-provider-aliases` → `5d5a25e` (pushed to `local-router`)
+- `main` → `c0a3cdc` (unchanged, pushed to `local-router`)
+
+**What remains (next session):**
+1. Fix stale build artifacts in `src/` (gitignore + `git rm --cached` — commands in merge review section).
+2. Run `npm test` and verify integration tests pass.
+3. Merge `fix/vscode-provider-aliases` into `main` with `--no-ff`.
+4. Rebuild, re-test, push `main` to `local-router`.
+5. Delete merged branch and prune worktrees.
