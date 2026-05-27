@@ -156,5 +156,6 @@
 - Notes: GitNexus `detect_changes --scope all` for `local-router` reports CRITICAL branch-level risk because the rebrand touches 9 files and shared presentation/configuration paths; direct pre-change API route impact for `/api/show`, `/api/show/:model`, `/api/vscode/configure`, and `/config` remained LOW with zero indexed direct consumers.
 - Notes: Final pre-commit review on `release/local-router-rebrand` included the current uncommitted diff, `README.md`, `bin/local-router.js`, and compatibility wrapper `bin/fvs-code.js`.
 - Notes: Final verification passed via `npm run build`, `env CODEX_SANDBOX_NETWORK_DISABLED=0 npm run test:integration`, `git diff --check`, and focused banned-crypto/secret scan. Scan findings were policy vocabulary and expected key/env/redaction field names only; no secret values or banned crypto implementation were found.
-- Notes: Prepared merge sequence remains non-executed pending explicit operator approval: `fix/vscode-provider-aliases -> main`, then `release/local-router-rebrand -> main`, then create/push `production` from verified `main`.
-- Notes: No merge to main performed.
+- Notes: Operator explicitly approved merge execution with "proceed".
+- Notes: Merged `fix/vscode-provider-aliases` into `main`, then merged `release/local-router-rebrand` into `main`. The intermediate provider-alias-only `main` failed integration on a stale test variable that was fixed by the rebrand branch; no intermediate `main` push was performed.
+- Notes: Final verified `main` is the source for the `production` branch push.
